@@ -1,0 +1,59 @@
+Repo strategy: Monorepo (recommended for solo dev)
+
+Use one Git repo with multiple Gradle/Maven modules — not separate repos per service. For a resume/portfolio project built solo, separate repos just add friction (juggling multiple IDE windows, versioning shared code, multiple CI pipelines) without any real benefit. Companies use separate repos mainly for large teams with independent release cycles — you don't have that problem yet. A monorepo also makes the project easier for a recruiter/interviewer to browse in one GitHub link.
+
+Folder structure
+movie-ticketing-system/
+├── users-service/
+│   ├── src/main/java/com/yourname/users/
+│   │   ├── UsersServiceApplication.java
+│   │   ├── controller/
+│   │   ├── service/
+│   │   ├── repository/
+│   │   ├── entity/
+│   │   ├── dto/
+│   │   ├── config/
+│   │   └── exception/
+│   ├── src/main/resources/application.yml
+│   ├── src/test/java/...
+│   └── build.gradle (or pom.xml)
+│
+├── theaters-service/           (same internal structure)
+├── movies-service/
+├── seats-service/
+├── tickets-service/
+├── api-gateway/                 (Spring Cloud Gateway)
+├── discovery-server/            (Eureka)
+├── config-server/               (Spring Cloud Config, optional early on)
+│
+├── common-lib/                  (shared DTOs/events/exceptions — used sparingly)
+│   └── src/main/java/com/yourname/common/
+│       ├── events/               (e.g. BookingConfirmedEvent.java)
+│       └── exception/
+│
+├── docker-compose.yml            (spins up Postgres x N, Redis, Kafka, all services)
+├── docker-compose.override.yml   (local dev overrides)
+├── .github/workflows/            (CI — optional but a nice resume touch)
+├── docs/
+│   └── movie-ticketing-system-design.md
+└── README.md                     (architecture diagram + how to run)
+
+Each *-service/ folder is a fully independent Spring Boot application — its own main() method, own application.yml, own dependencies, own port. That independence is the whole point of microservices: each one can be built, tested, and run in isolation.
+
+Build tool setup
+
+Gradle multi-project build is the cleanest way to do this (Maven multi-module works too, Gradle configures faster). Root settings.gradle:
+
+groovy
+rootProject.name = 'movie-ticketing-system'
+include 'users-service', 'theaters-service', 'movies-service',
+        'seats-service', 'tickets-service', 'api-gateway',
+        'discovery-server', 'common-lib'
+
+Each service's build.gradle depends on common-lib only for shared event/DTO classes — never for business logic. If you find yourself sharing entities or repositories, that's a sign the service boundary is leaking.
+
+How this looks in your IDE (IntelliJ IDEA — assuming that, say if not)
+Open the root folder (movie-ticketing-system/) as a single project — IntelliJ auto-detects the Gradle multi-module structure and shows each service as a module in the project tree.
+Each service gets its own Run Configuration (its own *Application.java main class) — you'll run 5-7 configs simultaneously during local dev. IntelliJ lets you group these into a "Compound Run Configuration" so Run All Services starts everything at once.
+Use separate terminal tabs or docker-compose up for infra (Postgres instances, Redis, Kafka, Zookeeper) — don't run these from the IDE.
+Each service listens on its own port (8081 users, 8082 theaters, 8083 movies, 8084 seats, 8085 tickets, 8080 gateway) — set this in each application.yml.
