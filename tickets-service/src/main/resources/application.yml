@@ -1,0 +1,85 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: tickets-service
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: jdbc:postgresql://localhost:5437/tickets_db
+    username: mts_user
+    password: mts_pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+
+# Eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+
+# Booking config
+booking:
+  callback-base-url: http://localhost:8085
+
+seats:
+  lock:
+    ttl-seconds: 300
+
+# Resilience4j
+resilience4j:
+  circuitbreaker:
+    instances:
+      seats-service:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+      payment-service:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  health:
+    circuitbreakers:
+      enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+  metrics:
+    tags:
+      application: tickets-service
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        booking.saga.duration: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+        booking.saga.duration: 0.5, 0.95, 0.99
+
+logging:
+  level:
+    com.shubh.movietickets: DEBUG
+
