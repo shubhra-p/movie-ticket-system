@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.UUID;
 
 /*
  Published by Tickets Service when a booking fails (payment declined, expired, etc.).
@@ -18,9 +19,9 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class BookingFailedEvent extends BaseEvent {
-    private Long bookingId;
-    private Long scheduleId;
-    private String userId;
+    private UUID bookingId;
+    private UUID scheduleId;
+    private UUID userId;
     private List<String> seatNumbers;
     private String reason;
 }

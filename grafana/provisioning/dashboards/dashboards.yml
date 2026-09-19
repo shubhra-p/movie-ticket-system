@@ -1,0 +1,13 @@
+# Auto-provision Grafana dashboards from JSON files
+apiVersion: 1
+
+providers:
+  - name: 'Movie Ticket System'
+    orgId: 1
+    folder: 'Movie Ticket System'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

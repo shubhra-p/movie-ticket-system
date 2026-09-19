@@ -1,0 +1,40 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: discovery-server
+
+# Eureka server config — standalone (single-node) mode
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false   # Don't register itself
+    fetch-registry: false         # Don't fetch from itself
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  server:
+    # Disable self-preservation in dev (would suppress evictions when <85% heartbeats arrive)
+    enable-self-preservation: false
+    # Faster eviction for dev (default 60s)
+    eviction-interval-timer-in-ms: 5000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    tags:
+      application: discovery-server
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
+
+logging:
+  level:
+    com.netflix.eureka: WARN
+    com.netflix.discovery: WARN

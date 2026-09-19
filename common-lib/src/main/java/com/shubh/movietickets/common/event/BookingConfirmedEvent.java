@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 /*
  Published by Tickets Service when a booking is confirmed after successful payment.
@@ -20,9 +21,9 @@ import java.util.List;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class BookingConfirmedEvent extends BaseEvent {
-    private Long bookingId;
-    private Long scheduleId;
-    private String userId;
+    private UUID bookingId;
+    private UUID scheduleId;
+    private UUID userId;
     private List<String> seatNumbers;
     private BigDecimal totalAmount;
 }

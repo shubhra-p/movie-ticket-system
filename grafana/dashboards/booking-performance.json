@@ -1,0 +1,445 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Seat lock contention, booking saga performance, and circuit breaker health — the resume metrics",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "🔒 Seat Lock Contention",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Rate of seat lock attempts, successes, and failures per second — shows contention under load",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisLabel": "ops/s",
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "stacking": { "mode": "none" }
+          },
+          "unit": "ops"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "failures" },
+            "properties": [
+              { "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "successes" },
+            "properties": [
+              { "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "attempts" },
+            "properties": [
+              { "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["sum", "mean", "max"] } },
+      "title": "Seat Lock Operations (rate/s)",
+      "targets": [
+        {
+          "expr": "sum(rate(seat_lock_attempts_total[1m]))",
+          "legendFormat": "attempts"
+        },
+        {
+          "expr": "sum(rate(seat_lock_successes_total[1m]))",
+          "legendFormat": "successes"
+        },
+        {
+          "expr": "sum(rate(seat_lock_failures_total[1m]))",
+          "legendFormat": "failures"
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Seat lock failure rate as a percentage — higher means more contention (users competing for same seats)",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 10 },
+              { "color": "orange", "value": 25 },
+              { "color": "red", "value": 50 }
+            ]
+          },
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 1 },
+      "id": 2,
+      "title": "Lock Contention Rate",
+      "targets": [
+        {
+          "expr": "100 * sum(rate(seat_lock_failures_total[5m])) / clamp_min(sum(rate(seat_lock_attempts_total[5m])), 1)",
+          "legendFormat": "contention %"
+        }
+      ],
+      "type": "gauge"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Running totals of seat lock attempts, successes, and failures since last restart",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "blue" }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "successes" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "failures" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 1 },
+      "id": 3,
+      "title": "Lock Totals (cumulative)",
+      "targets": [
+        {
+          "expr": "sum(seat_lock_attempts_total)",
+          "legendFormat": "attempts"
+        },
+        {
+          "expr": "sum(seat_lock_successes_total)",
+          "legendFormat": "successes"
+        },
+        {
+          "expr": "sum(seat_lock_failures_total)",
+          "legendFormat": "failures"
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Dual-layer lock acquisition time (Redis + Postgres) — p50, p95, p99",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisLabel": "duration",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "id": 4,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } },
+      "title": "Seat Lock Duration (p50 / p95 / p99)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(seat_lock_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(seat_lock_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(seat_lock_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p99"
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Average time to acquire a dual-layer seat lock — the key metric for concurrency performance",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.05 },
+              { "color": "orange", "value": 0.1 },
+              { "color": "red", "value": 0.5 }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "id": 5,
+      "title": "Avg Lock Acquisition Time",
+      "targets": [
+        {
+          "expr": "sum(rate(seat_lock_duration_seconds_sum[5m])) / clamp_min(sum(rate(seat_lock_duration_seconds_count[5m])), 1)",
+          "legendFormat": "avg duration"
+        }
+      ],
+      "type": "gauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+      "id": 101,
+      "title": "🎫 Booking Saga",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "End-to-end booking saga duration (lock seats → initiate payment) — p50, p95, p99",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisLabel": "duration",
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 18 },
+      "id": 6,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["mean", "max"] } },
+      "title": "Booking Saga Duration (p50 / p95 / p99)",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(booking_saga_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(booking_saga_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(booking_saga_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p99"
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Booking outcomes: confirmed vs failed vs expired — shows system reliability",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisLabel": "bookings/s",
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "lineWidth": 1,
+            "showPoints": "never",
+            "stacking": { "mode": "normal" }
+          },
+          "unit": "ops"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "confirmed" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "failed" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "expired" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 18 },
+      "id": 7,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["sum"] } },
+      "title": "Booking Outcomes (stacked rate)",
+      "targets": [
+        {
+          "expr": "sum(rate(booking_outcomes_total{result=\"confirmed\"}[1m]))",
+          "legendFormat": "confirmed"
+        },
+        {
+          "expr": "sum(rate(booking_outcomes_total{result=\"failed\"}[1m]))",
+          "legendFormat": "failed"
+        },
+        {
+          "expr": "sum(rate(booking_outcomes_total{result=\"expired\"}[1m]))",
+          "legendFormat": "expired"
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Cumulative booking counts by outcome since last restart",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "failed" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "expired" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 26 },
+      "id": 8,
+      "title": "Booking Totals (cumulative)",
+      "targets": [
+        {
+          "expr": "sum(booking_outcomes_total{result=\"confirmed\"}) or vector(0)",
+          "legendFormat": "confirmed"
+        },
+        {
+          "expr": "sum(booking_outcomes_total{result=\"failed\"}) or vector(0)",
+          "legendFormat": "failed"
+        },
+        {
+          "expr": "sum(booking_outcomes_total{result=\"expired\"}) or vector(0)",
+          "legendFormat": "expired"
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "id": 102,
+      "title": "🔌 Circuit Breakers (Resilience4j)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Circuit breaker state: 0=closed (healthy), 1=open (failing), 2=half-open (testing)",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 },
+              { "color": "yellow", "value": 2 }
+            ]
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": { "text": "CLOSED", "color": "green" },
+                "1": { "text": "OPEN", "color": "red" },
+                "2": { "text": "HALF_OPEN", "color": "yellow" }
+              },
+              "type": "value"
+            }
+          ]
+        }
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 33 },
+      "id": 9,
+      "title": "Circuit Breaker State",
+      "targets": [
+        {
+          "expr": "resilience4j_circuitbreaker_state{application=~\"tickets-service|movies-service\"}",
+          "legendFormat": "{{name}} ({{application}})"
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "description": "Circuit breaker call outcomes — successful, failed, and not_permitted calls",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisLabel": "calls/s",
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "opacity",
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "unit": "ops"
+        }
+      },
+      "gridPos": { "h": 6, "w": 16, "x": 8, "y": 33 },
+      "id": 10,
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["sum"] } },
+      "title": "Circuit Breaker Call Rate",
+      "targets": [
+        {
+          "expr": "sum(rate(resilience4j_circuitbreaker_calls_seconds_count{kind=\"successful\"}[1m])) by (name)",
+          "legendFormat": "{{name}} successful"
+        },
+        {
+          "expr": "sum(rate(resilience4j_circuitbreaker_calls_seconds_count{kind=\"failed\"}[1m])) by (name)",
+          "legendFormat": "{{name}} failed"
+        },
+        {
+          "expr": "sum(rate(resilience4j_circuitbreaker_not_permitted_calls_total[1m])) by (name)",
+          "legendFormat": "{{name}} rejected"
+        }
+      ],
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["movie-ticket-system", "booking", "performance"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": true, "text": "Prometheus", "value": "Prometheus" },
+        "hide": 0,
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus"
+      }
+    ]
+  },
+  "time": { "from": "now-30m", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Booking & Seat Lock Performance",
+  "uid": "mts-booking-performance"
+}
