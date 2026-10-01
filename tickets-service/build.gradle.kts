@@ -9,6 +9,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+    // Service Discovery
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
+
     // OpenFeign (calls Seats Service + Payment Service)
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 

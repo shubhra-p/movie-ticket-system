@@ -12,7 +12,7 @@ import java.util.UUID;
  Used to validate screenId and fetch screen/theater metadata
  when creating a movie schedule.
  */
-@FeignClient(name = "theaters-service", url = "${feign.theaters-service.url}")
+@FeignClient(name = "theaters-service")
 public interface TheaterClient {
 
     @GetMapping("/api/theaters/screens/{screenId}")

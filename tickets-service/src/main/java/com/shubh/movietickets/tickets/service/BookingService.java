@@ -2,6 +2,7 @@ package com.shubh.movietickets.tickets.service;
 
 import com.shubh.movietickets.common.event.BookingConfirmedEvent;
 import com.shubh.movietickets.common.event.BookingFailedEvent;
+import com.shubh.movietickets.common.exception.ConflictException;
 import com.shubh.movietickets.common.exception.ResourceNotFoundException;
 import com.shubh.movietickets.tickets.client.PaymentClient;
 import com.shubh.movietickets.tickets.client.SeatsClient;
@@ -177,6 +178,7 @@ public class BookingService {
             /* Saga COMPLETE: confirm booking */
             booking.setStatus(BookingStatus.CONFIRMED);
             bookingRepository.save(booking);
+            bookingsConfirmed.increment();
 
             eventProducer.publishBookingConfirmed(BookingConfirmedEvent.builder()
                     .sourceService("tickets-service")
@@ -206,6 +208,13 @@ public class BookingService {
         booking.setStatus(targetStatus);
         booking.setFailureReason(reason);
         bookingRepository.save(booking);
+
+        /* Increment the appropriate outcome counter */
+        if (targetStatus == BookingStatus.EXPIRED) {
+            bookingsExpired.increment();
+        } else if (targetStatus == BookingStatus.FAILED) {
+            bookingsFailed.increment();
+        }
 
         /* Compensating action: release seats via Feign (best-effort) */
         try {
@@ -263,6 +272,9 @@ public class BookingService {
 
     private BookingDto createBookingFallback(CreateBookingRequest req, Throwable t) {
         log.error("Seats Service unavailable: {}", t.getMessage());
+        if (t.getMessage() != null && t.getMessage().contains("[409]")) {
+            throw new ConflictException("Seats are already booked or locked by another user.");
+        }
         throw new RuntimeException("Seats Service is unavailable. Please try again later.");
     }
 

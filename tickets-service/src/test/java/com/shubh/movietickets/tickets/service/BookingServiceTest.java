@@ -10,11 +10,11 @@ import com.shubh.movietickets.tickets.entity.Booking;
 import com.shubh.movietickets.tickets.entity.BookingStatus;
 import com.shubh.movietickets.tickets.kafka.BookingEventProducer;
 import com.shubh.movietickets.tickets.repository.BookingRepository;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -38,7 +38,6 @@ class BookingServiceTest {
     @Mock private PaymentClient paymentClient;
     @Mock private BookingEventProducer eventProducer;
 
-    @InjectMocks
     private BookingService bookingService;
 
     private UUID userId;
@@ -47,6 +46,7 @@ class BookingServiceTest {
 
     @BeforeEach
     void setUp() {
+        bookingService = new BookingService(bookingRepository, seatsClient, paymentClient, eventProducer, new SimpleMeterRegistry());
         userId = UUID.randomUUID();
         scheduleId = UUID.randomUUID();
         bookingId = UUID.randomUUID();

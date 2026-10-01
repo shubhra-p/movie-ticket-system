@@ -9,6 +9,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+    // Service Discovery
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+
     // OpenFeign for inter-service calls
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 
@@ -23,6 +26,8 @@ dependencies {
 
     // Observability
     implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
 
     // Testing
     testImplementation("org.testcontainers:postgresql:1.20.1")

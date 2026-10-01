@@ -6,11 +6,11 @@ import com.shubh.movietickets.seats.dto.LockSeatsResponse;
 import com.shubh.movietickets.seats.entity.Seat;
 import com.shubh.movietickets.seats.entity.SeatStatus;
 import com.shubh.movietickets.seats.repository.SeatRepository;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -32,7 +32,6 @@ class SeatServiceTest {
     @Mock
     private RedisLockService redisLockService;
 
-    @InjectMocks
     private SeatService seatService;
 
     private UUID scheduleId;
@@ -41,10 +40,12 @@ class SeatServiceTest {
 
     @BeforeEach
     void setUp() {
+        seatService = new SeatService(seatRepository, redisLockService, new SimpleMeterRegistry());
         scheduleId = UUID.randomUUID();
         userId = UUID.randomUUID();
         seatNumbers = List.of("A1", "A2");
     }
+
 
     @Test
     @DisplayName("Lock seats - success (Redis + Postgres both succeed)")

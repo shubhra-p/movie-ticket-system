@@ -22,10 +22,14 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
 
-# Feign - direct URL for now, Eureka will override in Phase 7
-feign:
-  theaters-service:
-    url: http://localhost:8082
+# Eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
 
 # Resilience4j Circuit Breaker
 resilience4j:
@@ -46,9 +50,20 @@ management:
   health:
     circuitbreakers:
       enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
   metrics:
     tags:
       application: movies-service
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99
 
 logging:
   level:
