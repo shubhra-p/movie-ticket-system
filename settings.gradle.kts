@@ -9,5 +9,6 @@ include(
     "tickets-service",
     "payment-service",
     "api-gateway",
-    "discovery-server"
+    "discovery-server",
+    "load-tests"
 )

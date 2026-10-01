@@ -5,7 +5,7 @@ spring:
   application:
     name: discovery-server
 
-# Eureka server config — standalone (single-node) mode
+# Eureka server config: standalone (single-node) mode
 eureka:
   instance:
     hostname: localhost

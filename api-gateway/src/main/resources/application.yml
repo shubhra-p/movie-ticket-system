@@ -9,7 +9,7 @@ spring:
       enabled: true
   cloud:
     gateway:
-      # Global CORS for frontend (Phase 10)
+      # Global CORS for frontend
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -21,7 +21,7 @@ spring:
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
 
-# JWT — same secret as Users Service (shared signing key)
+# JWT: same secret as Users Service (shared signing key)
 jwt:
   secret: dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IGZvciBIUzI1NiBzaWduaW5nIHB1cnBvc2VzIG9ubHk=
 

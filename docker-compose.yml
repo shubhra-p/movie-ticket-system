@@ -1,5 +1,5 @@
 # ============================================================
-# Movie Ticketing System — Docker Compose (Infrastructure)
+# Movie Ticketing System - Docker Compose (Infrastructure)
 # ============================================================
 # Spins up all backing services needed for local development.
 # Services themselves are run via IDE or Gradle bootRun.
@@ -7,7 +7,7 @@
 
 services:
 
-  # ── PostgreSQL Databases (one per service) ──────────────────
+  #PostgreSQL Databases (one per service)
 
   users-db:
     image: postgres:16-alpine
@@ -21,7 +21,7 @@ services:
     volumes:
       - users-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mts_user -d users_db"]
+      test: [ "CMD-SHELL", "pg_isready -U mts_user -d users_db" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -38,7 +38,7 @@ services:
     volumes:
       - theaters-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mts_user -d theaters_db"]
+      test: [ "CMD-SHELL", "pg_isready -U mts_user -d theaters_db" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -55,7 +55,7 @@ services:
     volumes:
       - movies-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mts_user -d movies_db"]
+      test: [ "CMD-SHELL", "pg_isready -U mts_user -d movies_db" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -72,7 +72,7 @@ services:
     volumes:
       - seats-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mts_user -d seats_db"]
+      test: [ "CMD-SHELL", "pg_isready -U mts_user -d seats_db" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -89,12 +89,29 @@ services:
     volumes:
       - tickets-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U mts_user -d tickets_db"]
+      test: [ "CMD-SHELL", "pg_isready -U mts_user -d tickets_db" ]
       interval: 5s
       timeout: 3s
       retries: 5
 
-  # ── Redis ───────────────────────────────────────────────────
+  payments-db:
+    image: postgres:16-alpine
+    container_name: mts-payments-db
+    environment:
+      POSTGRES_DB: payments_db
+      POSTGRES_USER: mts_user
+      POSTGRES_PASSWORD: mts_pass
+    ports:
+      - "5438:5432"
+    volumes:
+      - payments-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U mts_user -d payments_db" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  #Redis
 
   redis:
     image: redis:7-alpine
@@ -103,12 +120,12 @@ services:
       - "6379:6379"
     command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
 
-  # ── Kafka (KRaft mode — no Zookeeper) ──────────────────────
+  #Kafka (KRaft mode no Zookeeper)
 
   kafka:
     image: apache/kafka:3.8.0
@@ -129,13 +146,13 @@ services:
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     healthcheck:
-      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1" ]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
 
-  # ── Observability Stack ─────────────────────────────────────
+  #Observability Stack
 
   prometheus:
     image: prom/prometheus:v2.53.0
@@ -159,6 +176,7 @@ services:
       GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
       - grafana-data:/var/lib/grafana
     depends_on:
       - prometheus
@@ -175,4 +193,5 @@ volumes:
   movies-db-data:
   seats-db-data:
   tickets-db-data:
+  payments-db-data:
   grafana-data:
