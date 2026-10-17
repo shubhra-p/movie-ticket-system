@@ -1,0 +1,138 @@
+.tickets-page {
+  padding-top: 40px;
+  padding-bottom: 60px;
+}
+
+.tickets-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.tickets-header h1 { font-size: 2rem; }
+
+.tickets-subtitle {
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.tickets-empty {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.tickets-empty h3 {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+}
+
+/* Ticket Card */
+.tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ticket-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px 28px;
+  position: relative;
+  overflow: visible;
+}
+
+.ticket-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.ticket-card:hover::before { opacity: 1; }
+
+/* Notch cutouts for ticket shape */
+.ticket-notch {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: var(--bg-primary);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ticket-notch-left { left: -8px; }
+.ticket-notch-right { right: -8px; }
+
+.ticket-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 120px;
+}
+
+.ticket-id {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.ticket-center {
+  flex: 1;
+  display: flex;
+  gap: 32px;
+}
+
+.ticket-seats, .ticket-date {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ticket-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ticket-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.ticket-right {
+  text-align: right;
+}
+
+.ticket-amount {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+  .ticket-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+  }
+  .ticket-center { flex-direction: column; gap: 12px; }
+  .ticket-notch { display: none; }
+  .ticket-right { align-self: flex-end; }
+}
