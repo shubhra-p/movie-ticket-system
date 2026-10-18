@@ -25,7 +25,7 @@ export default function Navbar() {
     >
       <div className="navbar-inner container">
         <Link to="/" className="navbar-brand">
-          <Film size={22} strokeWidth={2.5} />
+          <Film size={26} strokeWidth={2.5} />
           <span className="gradient-text">CineBook</span>
         </Link>
 
@@ -33,20 +33,20 @@ export default function Navbar() {
           {isAuthenticated ? (
             <>
               <Link to="/movies" className={`nav-link ${isActive('/movies') ? 'active' : ''}`}>
-                <Film size={16} />
+                <Film size={18} />
                 Movies
               </Link>
               <Link to="/my-tickets" className={`nav-link ${isActive('/my-tickets') ? 'active' : ''}`}>
-                <Ticket size={16} />
+                <Ticket size={18} />
                 My Tickets
               </Link>
               <div className="nav-divider" />
               <div className="nav-user">
-                <User size={15} />
+                <User size={17} />
                 <span>{user?.name || user?.email}</span>
               </div>
               <button onClick={handleLogout} className="btn btn-ghost btn-sm" id="logout-btn">
-                <LogOut size={15} />
+                <LogOut size={17} />
                 Logout
               </button>
             </>

@@ -104,10 +104,28 @@ export default function MoviesPage() {
             <motion.div key={movie.id} variants={item}>
               <Link to={`/movies/${movie.id}`} className="movie-card card" id={`movie-${movie.id}`}>
                 <div className="movie-poster" style={{
-                  background: `linear-gradient(135deg, ${GENRE_COLORS[movie.genre] || '#6366f1'}20, ${GENRE_COLORS[movie.genre] || '#6366f1'}08)`,
+                  background: movie.posterUrl
+                    ? 'var(--bg-secondary)'
+                    : `linear-gradient(135deg, ${GENRE_COLORS[movie.genre] || '#6366f1'}20, ${GENRE_COLORS[movie.genre] || '#6366f1'}08)`,
                 }}>
-                  <div className="movie-poster-icon" style={{ color: GENRE_COLORS[movie.genre] || '#6366f1' }}>
-                    {movie.title.charAt(0)}
+                  {movie.posterUrl ? (
+                    <img
+                      src={movie.posterUrl}
+                      alt={movie.title}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="movie-poster-fallback"
+                    style={{
+                      display: movie.posterUrl ? 'none' : 'flex',
+                      color: GENRE_COLORS[movie.genre] || '#6366f1',
+                    }}
+                  >
+                    <span className="movie-poster-icon">{movie.title.charAt(0)}</span>
                   </div>
                 </div>
                 <div className="movie-info">
@@ -115,7 +133,7 @@ export default function MoviesPage() {
                   <div className="movie-meta">
                     <span className="badge badge-neutral">{movie.genre}</span>
                     <span className="movie-meta-item">
-                      <Clock size={13} />
+                      <Clock size={15} />
                       {movie.durationMinutes}m
                     </span>
                     {movie.language && (
@@ -127,7 +145,7 @@ export default function MoviesPage() {
                   )}
                   <div className="movie-cta">
                     <span>View Showtimes</span>
-                    <ChevronRight size={16} />
+                    <ChevronRight size={18} />
                   </div>
                 </div>
               </Link>

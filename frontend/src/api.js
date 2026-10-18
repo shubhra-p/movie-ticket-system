@@ -53,14 +53,17 @@ export const auth = {
 export const movies = {
   list: (search) => request(`/movies${search ? `?search=${encodeURIComponent(search)}` : ''}`),
   get: (id) => request(`/movies/${id}`),
+  create: (data) => request('/movies', { method: 'POST', body: JSON.stringify(data) }),
   schedules: (movieId) => request(`/movies/${movieId}/schedules`),
   schedule: (scheduleId) => request(`/movies/schedules/${scheduleId}`),
+  createSchedule: (data) => request('/movies/schedules', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 /* === Theaters === */
 export const theaters = {
   list: (city) => request(`/theaters${city ? `?city=${encodeURIComponent(city)}` : ''}`),
   get: (id) => request(`/theaters/${id}`),
+  create: (data) => request('/theaters', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 /* === Seats === */

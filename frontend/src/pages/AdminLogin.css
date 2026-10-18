@@ -1,0 +1,36 @@
+/* Admin Login Page — distinct styling */
+.admin-login-page {
+  background: linear-gradient(135deg, #0a0a14 0%, #0f0a1a 50%, #0a0a14 100%);
+}
+
+.admin-bg-pattern {
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(139, 92, 246, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 60%, rgba(232, 176, 75, 0.04) 0%, transparent 50%) !important;
+}
+
+.admin-login-card {
+  border: 1px solid rgba(139, 92, 246, 0.15) !important;
+}
+
+.admin-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  margin-bottom: 20px;
+}
+
+.admin-login-btn {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3) !important;
+}
+
+.admin-login-btn:hover {
+  box-shadow: 0 6px 28px rgba(139, 92, 246, 0.45) !important;
+}

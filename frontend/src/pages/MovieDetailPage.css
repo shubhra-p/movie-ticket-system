@@ -1,71 +1,73 @@
 .movie-detail {
-  padding-top: 32px;
-  padding-bottom: 60px;
+  padding-top: 40px;
+  padding-bottom: 80px;
 }
 
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
+  gap: 8px;
+  font-size: 0.95rem;
   color: var(--text-secondary);
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   transition: color var(--transition-fast);
 }
 .back-link:hover { color: var(--text-primary); }
 
 .movie-detail-header {
-  margin-bottom: 40px;
+  margin-bottom: 48px;
 }
 
 .movie-detail-info h1 {
-  font-size: 2.2rem;
+  font-size: 2.6rem;
 }
 
 .movie-detail-desc {
   color: var(--text-secondary);
-  max-width: 640px;
-  line-height: 1.7;
+  max-width: 700px;
+  line-height: 1.8;
+  font-size: 1.05rem;
 }
 
 /* Schedules */
 .schedules-section h2 {
-  font-size: 1.4rem;
-  margin-bottom: 24px;
+  font-size: 1.6rem;
+  margin-bottom: 28px;
 }
 
 .schedules-empty {
   color: var(--text-secondary);
-  padding: 40px 0;
+  padding: 48px 0;
+  font-size: 1.05rem;
 }
 
 .schedules-list {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 32px;
 }
 
 .schedule-date-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1rem;
+  gap: 10px;
+  font-size: 1.1rem;
   color: var(--text-secondary);
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   font-weight: 600;
 }
 
 .schedule-slots {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .schedule-slot {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 16px 20px;
+  gap: 24px;
+  padding: 20px 24px;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
@@ -78,36 +80,36 @@
 
 .schedule-slot-time {
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--accent);
-  min-width: 100px;
+  min-width: 110px;
 }
 
 .schedule-slot-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   flex: 1;
 }
 
 .schedule-slot-theater {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.9rem;
+  gap: 6px;
+  font-size: 1rem;
   font-weight: 500;
 }
 
 .schedule-slot-screen {
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   color: var(--text-secondary);
 }
 
 .schedule-slot-seats {
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
-  padding: 4px 10px;
+  padding: 6px 12px;
   background: var(--bg-glass-light);
   border-radius: var(--radius-full);
 }
@@ -123,6 +125,6 @@
 }
 
 @media (max-width: 640px) {
-  .schedule-slot { flex-wrap: wrap; gap: 10px; }
+  .schedule-slot { flex-wrap: wrap; gap: 12px; }
   .schedule-slot-time { min-width: auto; }
 }

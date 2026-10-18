@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import { auth as authApi } from '../api';
 
 const AuthContext = createContext(null);
@@ -67,6 +67,7 @@ export function AuthProvider({ children }) {
     user: authState?.user || null,
     token: authState?.token || null,
     isAuthenticated: !!authState?.token,
+    isAdmin: authState?.user?.role === 'ADMIN',
     loading,
     error,
     login,
